@@ -23,7 +23,7 @@ Nope, **markable** can handle it too!
 Add to your Gemfile
 
 ```
-gem 'markable'
+gem 'markable', :github => 'FlowerWrong/markable'
 ```
 
 Run
@@ -32,13 +32,6 @@ Run
 bundle install
 rails generate markable:migration
 rake db:migrate
-```
-
-##Upgrade
-
-If you are upgrading from version 0.1.0 or less, run
-```
-rake markable:delete_orphan_marks
 ```
 
 ## Usage
