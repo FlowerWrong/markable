@@ -5,14 +5,14 @@ module Markable
   class MigrationGenerator < Rails::Generators::Base
     include Rails::Generators::Migration
 
-    desc "Generates migration for Mark model"
+    desc 'Generates migration for Mark model'
 
     def self.orm
       Rails::Generators.options[:rails][:orm]
     end
 
     def self.source_root
-      File.join(File.dirname(__FILE__), 'templates', (orm.to_s unless orm.class.eql?(String)) )
+      File.join(File.dirname(__FILE__), 'templates', (orm.to_s unless orm.class.eql?(String)))
     end
 
     def self.orm_has_migration?
@@ -21,11 +21,11 @@ module Markable
 
     def self.next_migration_number(dirname)
       if ActiveRecord::Base.timestamped_migrations
-        migration_number = Time.now.utc.strftime("%Y%m%d%H%M%S").to_i
+        migration_number = Time.now.utc.strftime('%Y%m%d%H%M%S').to_i
         migration_number += 1
         migration_number.to_s
       else
-        "%.3d" % (current_migration_number(dirname) + 1)
+        format('%.3d', (current_migration_number(dirname) + 1))
       end
     end
 
@@ -36,4 +36,3 @@ module Markable
     end
   end
 end
-

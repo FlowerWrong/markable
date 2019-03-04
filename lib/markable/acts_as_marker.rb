@@ -3,17 +3,17 @@ module Markable
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def acts_as_marker(options = {})
+      def acts_as_marker(_options = {})
         Markable.set_models
         class_eval do
           class << self
             attr_accessor :marker_name
           end
         end
-        self.marker_name = self.name.downcase.to_sym
+        self.marker_name = name.downcase.to_sym
 
         class_eval do
-          has_many :marker_marks, :class_name => 'Markable::Mark', :as => :marker, :dependent => :delete_all
+          has_many :marker_marks, class_name: 'Markable::Mark', as: :marker, dependent: :delete_all
           include Markable::ActsAsMarker::MarkerInstanceMethods
         end
         Markable.add_marker self
@@ -23,16 +23,16 @@ module Markable
     module MarkerInstanceMethods
       def method_missing(method_sym, *args)
         Markable.models.each do |model_name|
-          if method_sym.to_s =~ Regexp.new("^[\\w_]+_#{model_name.downcase.pluralize}$") ||
-              method_sym.to_s =~ Regexp.new("^#{model_name.downcase.pluralize}_marked_as(_[\\w_]+)?$")
-            model_name.constantize # ping model
-            if self.methods.include? method_sym # method has appear
-              return self.method(method_sym).call(*args) # call this method
-            end
+          next unless method_sym.to_s =~ Regexp.new("^[\\w_]+_#{model_name.downcase.pluralize}$") ||
+                      method_sym.to_s =~ Regexp.new("^#{model_name.downcase.pluralize}_marked_as(_[\\w_]+)?$")
+
+          model_name.constantize # ping model
+          if methods.include? method_sym # method has appear
+            return method(method_sym).call(*args) # call this method
           end
         end
         super
-      rescue
+      rescue StandardError
         super
       end
 
@@ -46,7 +46,7 @@ module Markable
       def remove_mark(mark, markables)
         Markable.can_mark_or_raise? self, markables, mark
         Array.wrap(markables).each do |markable|
-          markable.unmark mark, :by => self
+          markable.unmark mark, by: self
         end
       end
     end

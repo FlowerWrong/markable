@@ -1,7 +1,7 @@
 module Markable
   class Mark < ActiveRecord::Base
-    belongs_to :markable, :polymorphic => true
-    belongs_to :marker, :polymorphic => true
+    belongs_to :markable, polymorphic: true
+    belongs_to :marker, polymorphic: true
 
     if Rails.version.to_i < 4
       attr_accessible :markable_id, :markable_type, :marker_id, :marker_type, :mark
@@ -17,11 +17,11 @@ module Markable
     #
     # @return [Number] Deleted orphan marks count
     def self.delete_orphans
-      Markable::Mark.all.delete_if { |mark|
+      Markable::Mark.all.delete_if do |mark|
         mark.marker && mark.markable
-      }.each { |orphan|
+      end.each do |orphan|
         Markable::Mark.delete_all orphan.attributes
-      }.count
+      end.count
     end
   end
 end

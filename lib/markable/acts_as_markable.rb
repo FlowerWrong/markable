@@ -23,27 +23,27 @@ module Markable
         self.__markable_marks ||= {}
         marks.each do |mark|
           self.__markable_marks[mark] = {
-            :allowed_markers => markers
+            allowed_markers: markers
           }
         end
 
         class_eval do
           has_many :markable_marks,
-                   :class_name => 'Markable::Mark',
-                   :as => :markable,
-                   :dependent => :delete_all
+                   class_name: 'Markable::Mark',
+                   as: :markable,
+                   dependent: :delete_all
           include Markable::ActsAsMarkable::MarkableInstanceMethods
 
           def self.marked_as(mark, options = {})
             by = options[:by]
             if by.present?
-              result = self.joins(:markable_marks).where({
-                :marks => {
-                  :mark => mark.to_s,
-                  :marker_id => by.id,
-                  :marker_type => by.class.name
+              result = joins(:markable_marks).where(
+                marks: {
+                  mark: mark.to_s,
+                  marker_id: by.id,
+                  marker_type: by.class.name
                 }
-              })
+              )
               markable = self
               result.class_eval do
                 define_method :<< do |object|
@@ -56,13 +56,13 @@ module Markable
                 end
               end
             else
-              result = self.joins(:markable_marks).where(:marks => { :mark => mark.to_s }).group("#{self.table_name}.id")
+              result = joins(:markable_marks).where(marks: { mark: mark.to_s }).group("#{table_name}.id")
             end
             result
           end
         end
 
-        self.__markable_marks.each do |mark, o|
+        self.__markable_marks.each do |mark, _o|
           class_eval %(
             def self.marked_as_#{mark}(options = {})
               self.marked_as(:#{mark}, options)
@@ -79,19 +79,18 @@ module Markable
     end
 
     module MarkableInstanceMethods
-
       def method_missing(method_sym, *args)
         Markable.models.each do |model_name|
-          if method_sym.to_s =~ Regexp.new("^#{model_name.downcase.pluralize}_have_marked_as(_[\\w_]+)?$")
-            model_name.constantize # ping model
+          next unless method_sym.to_s =~ Regexp.new("^#{model_name.downcase.pluralize}_have_marked_as(_[\\w_]+)?$")
 
-            if self.methods.include?(method_sym) # method has appear
-              return self.method(method_sym).call(*args) # call this method
-            end
+          model_name.constantize # ping model
+
+          if methods.include?(method_sym) # method has appear
+            return method(method_sym).call(*args) # call this method
           end
         end
         super
-      rescue
+      rescue StandardError
         super
       end
 
@@ -99,11 +98,11 @@ module Markable
         Array.wrap(markers).each do |marker|
           Markable.can_mark_or_raise?(marker, self, mark)
           params = {
-            :markable_id => self.id,
-            :markable_type => self.class.name,
-            :marker_id => marker.id,
-            :marker_type => marker.class.name,
-            :mark => mark.to_s
+            markable_id: id,
+            markable_type: self.class.name,
+            marker_id: marker.id,
+            marker_type: marker.class.name,
+            mark: mark.to_s
           }
           Markable::Mark.create(params) unless Markable::Mark.exists?(params)
         end
@@ -112,9 +111,9 @@ module Markable
       def marked_as?(mark, options = {})
         by = options[:by]
         params = {
-          :markable_id => self.id,
-          :markable_type => self.class.name,
-          :mark => mark.to_s
+          markable_id: id,
+          markable_type: self.class.name,
+          mark: mark.to_s
         }
         if by.present?
           Markable.can_mark_or_raise?(by, self, mark)
@@ -129,31 +128,31 @@ module Markable
         if by.present?
           Markable.can_mark_or_raise?(by, self, mark)
           Array.wrap(by).each do |marker|
-            Markable::Mark.delete_all({
-              :markable_id => self.id,
-              :markable_type => self.class.name,
-              :marker_id => marker.id,
-              :marker_type => marker.class.name,
-              :mark => mark.to_s
-            })
+            Markable::Mark.delete_all(
+              markable_id: id,
+              markable_type: self.class.name,
+              marker_id: marker.id,
+              marker_type: marker.class.name,
+              mark: mark.to_s
+            )
           end
         else
-          Markable::Mark.delete_all({
-            :markable_id => self.id,
-            :markable_type => self.class.name,
-            :mark => mark.to_s
-          })
+          Markable::Mark.delete_all(
+            markable_id: id,
+            markable_type: self.class.name,
+            mark: mark.to_s
+          )
         end
       end
 
       def have_marked_as_by(mark, target)
-        result = target.joins(:marker_marks).where({
-          :marks => {
-            :mark => mark.to_s,
-            :markable_id => self.id,
-            :markable_type => self.class.name
+        result = target.joins(:marker_marks).where(
+          marks: {
+            mark: mark.to_s,
+            markable_id: id,
+            markable_type: self.class.name
           }
-        })
+        )
         markable = self
         result.class_eval do
           define_method :<< do |markers|
