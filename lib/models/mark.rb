@@ -17,10 +17,10 @@ module Markable
     #
     # @return [Number] Deleted orphan marks count
     def self.delete_orphans
-      Markable::Mark.all.delete_if do |mark|
+      Markable::Mark.all.to_a.delete_if do |mark|
         mark.marker && mark.markable
       end.each do |orphan|
-        Markable::Mark.delete_all orphan.attributes
+        Markable::Mark.where(orphan.attributes).delete_all
       end.count
     end
   end

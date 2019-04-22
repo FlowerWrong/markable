@@ -113,10 +113,10 @@ class ActsAsMarkableTest < ActiveSupport::TestCase
 
   test 'admin should have proper methods' do
     admin = Admin.create name: 'Admin'
-    assert_nothing_raised(NoMethodError) do
+    assert_nothing_raised do
       admin.favorite_foods
     end
-    assert_nothing_raised(NoMethodError) do
+    assert_nothing_raised do
       admin.favorite_drinks
     end
   end
