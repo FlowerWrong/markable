@@ -81,7 +81,7 @@ module Markable
     module MarkableInstanceMethods
       def method_missing(method_sym, *args)
         Markable.models.each do |model_name|
-          next unless method_sym.to_s =~ Regexp.new("^#{model_name.downcase.pluralize}_have_marked_as(_[\\w_]+)?$")
+          next unless method_sym.to_s =~ Regexp.new("^#{model_name.downcase.pluralize}_have_marked_as(_[\\w]+)?$")
 
           model_name.constantize # ping model
 
