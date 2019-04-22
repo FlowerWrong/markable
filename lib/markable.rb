@@ -13,13 +13,7 @@ module Markable
   protected
 
   def self.set_models
-    @@models = @@models.presence || ActiveRecord::Base.connection.tables.collect do |t|
-      begin
-                                                        t.classify
-      rescue StandardError
-        nil
-                                                      end
-    end .compact
+    @@models = @@models.presence || ActiveRecord::Base.connection.tables.collect{ |t| t.classify rescue nil }.compact
   end
 
   def self.add_markable(markable)
